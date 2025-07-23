@@ -119,6 +119,7 @@ impl SkyRegion for Cone {
 #[cfg(test)]
 mod tests {
 
+  use crate::SkyRegion;
   use super::*;
 
   #[test]

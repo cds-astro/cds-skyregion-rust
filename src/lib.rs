@@ -83,7 +83,10 @@ pub trait SkyRegionDynProcess {
 
 #[cfg(test)]
 mod tests {
-  use super::regions::cone::Cone;
+  use super::{
+    SkyRegion,
+    regions::cone::Cone
+  };
 
   #[test]
   fn test_cone() {

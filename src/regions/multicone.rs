@@ -586,7 +586,7 @@ mod tests {
         .map(|(ra, dec)| (ra.to_radians(), dec.to_radians()))
         .collect(),
       r_deg.to_radians(),
-      1,
+      Some(1),
     ) {
       Ok(multicone) => {
         println!("SortedHpxRanges: {:?}", multicone.sorted_hpx_ranges(6));

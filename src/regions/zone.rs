@@ -179,7 +179,8 @@ impl SkyRegion for Zone {
 
 #[cfg(test)]
 mod tests {
-  use super::{super::SkyArea, Zone};
+  use crate::SkyRegion;
+  use super::Zone;
 
   #[test]
   fn test_jname_to_zone() {
