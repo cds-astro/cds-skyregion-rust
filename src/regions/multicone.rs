@@ -192,9 +192,9 @@ impl MultiCone {
 }
 
 #[cfg(feature = "rayon")]
-pub fn get_thread_pool(n_thread: usize) -> ThreadPool {
+pub fn get_thread_pool(n_threads: u16) -> ThreadPool {
   ThreadPoolBuilder::new()
-    .num_threads(n_threads.min(num_cpus::get()))
+    .num_threads((n_threads as usize).min(num_cpus::get()))
     .build()
     .expect("Error initializing the thread pool")
 }
@@ -235,7 +235,7 @@ fn compute_hash_map_tmp_multi_thread(
   hash_map_mask: u32,
   n_threads: u16,
 ) -> Vec<(u32, LonLatCosLat)> {
-  get_thread_pool(n_threads as usize).install(|| {
+  get_thread_pool(n_threads).install(|| {
     let mut hash_map_tmp = positions
       .par_iter()
       .flat_map_iter(|(lon, lat)| {
