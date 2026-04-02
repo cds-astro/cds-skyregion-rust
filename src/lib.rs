@@ -91,6 +91,8 @@ mod tests {
   #[test]
   fn test_cone() {
     let cone = Cone::new(0.0, 0.0, 0.5);
-    assert!(cone.contains(0.01, 0.01))
+    assert!(cone.contains(0.01, 0.01));
+    assert!(cone.contains(0.499, 0.0));
+    assert!(!cone.contains(0.501, 0.0));
   }
 }

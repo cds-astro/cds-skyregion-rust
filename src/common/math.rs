@@ -69,7 +69,7 @@ pub fn squared_half_segment(dlon: f64, dlat: f64, cos_lat1: f64, cos_lat2: f64) 
 /// We recall that `s = 2 sin(ad/2)` with `ad` the angular distance.
 /// `(s/2)^2 = (2 sin(ad/2) / 2)^2 = sin(ad/2)^2`
 pub fn squared_half_segment_from_dist(sphe_dist: f64) -> f64 {
-  sphe_dist.half().asin().pow2()
+  sphe_dist.half().sin().pow2()
 }
 
 // TODO: remove this code and use the one in cdshealpix!!!
