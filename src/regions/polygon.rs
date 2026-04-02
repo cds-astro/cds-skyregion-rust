@@ -756,7 +756,7 @@ fn is_simple(segments: &[Segment]) -> bool {
   false
 }
 
-fn build_events(segments: &[Segment]) -> Vec<Event> {
+fn build_events(segments: &[Segment]) -> Vec<Event<'_>> {
   segments
     .iter()
     .flat_map(|seg| {
