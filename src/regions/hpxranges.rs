@@ -91,6 +91,36 @@ impl HpxRanges {
 
     Self::new(external_border_depth, merged_ranges)
   }
+
+  /// Returns ranges from an Healpix cell external border of given depth (without the cell itself!).
+  pub fn from_cell_border(cell_depth: u8, cell_hash: u64, external_border_depth: u8) -> HpxRanges {
+    assert!(external_border_depth > cell_depth);
+    let delta_depth = external_border_depth - cell_depth;
+    let mut ranges: Vec<Range<u64>> = external_edge(cell_depth, cell_hash, delta_depth)
+      .iter()
+      .map(|h| *h..*h + 1)
+      .collect();
+    ranges.sort_by_key(|range| range.start);
+
+    let mut merged_ranges: Vec<Range<u64>> = Vec::with_capacity(ranges.len());
+    for new_range in ranges {
+      if let Some(Range { start: _, end }) = merged_ranges.last_mut() {
+        // merge overlapping ranges
+        if new_range.start <= *end {
+          if *end < new_range.end {
+            *end = new_range.end
+          }
+        } else {
+          merged_ranges.push(new_range);
+        }
+      } else {
+        merged_ranges.push(new_range);
+      }
+    }
+
+    Self::new(external_border_depth, merged_ranges)
+  }
+
 }
 
 fn check_sorted_and_non_overlapping(ranges: &[Range<u64>]) {
@@ -139,15 +169,9 @@ impl SkyRegion for HpxRanges {
           let start = range.start >> twice_dd;
           let end = range.end >> twice_dd;
           if (end << twice_dd) == range.end {
-            (Range { start, end }, (start << twice_dd) == range.start)
+            (start..end, (start << twice_dd) == range.start)
           } else {
-            (
-              Range {
-                start,
-                end: end + 1,
-              },
-              false,
-            )
+            (start..end + 1, false)
           }
         })
         .fold(
@@ -156,9 +180,9 @@ impl SkyRegion for HpxRanges {
             // Possible fusion of ranges
             match acc_range_flag_opt {
               Some::<(Range<u64>, bool)>((mut acc_range, acc_flag)) => {
-                if acc_range.end <= cur_range.start {
+                if acc_range.end >= cur_range.start {
                   // can be =, not supposed to be <
-                  // Range fusion (=> flag = false)
+                  // Range fusion (=> flag = false; else would have been already merged)
                   acc_range.end = cur_range.end;
                   (ranges, Some((acc_range, false)))
                 } else {
@@ -182,9 +206,32 @@ impl SkyRegion for HpxRanges {
         .map(|range| {
           let start = range.start << twice_dd;
           let end = range.end << twice_dd;
-          (Range { start, end }, true)
+          (start..end, true)
         })
         .collect()
     }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_from_cell_border() {
+    let hpx_ranges = HpxRanges::from_cell_with_border(5, 0, 12);
+    eprintln!("{:?}", hpx_ranges);
+
+    let hpx_ranges = HpxRanges::from_cell_border(5, 0, 12);
+    eprintln!("{:?}", hpx_ranges);
+
+    let hpx_ranges_11_expected = HpxRanges::from_cell_border(5, 0, 11);
+    let hpx_ranges_11_actual = hpx_ranges
+      .sorted_hpx_ranges(11)
+      .into_iter()
+      .map(|(range, _)| range)
+      .collect::<Vec<Range<u64>>>();
+
+    assert_eq!(hpx_ranges_11_expected.ranges, hpx_ranges_11_actual);
   }
 }
