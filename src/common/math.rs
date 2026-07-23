@@ -178,3 +178,18 @@ pub fn cross_product(lhs: &(f64, f64, f64), rhs: &(f64, f64, f64)) -> (f64, f64,
     lhs.0 * rhs.1 - lhs.1 * rhs.0,
   )
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_shs() {
+    // println!("OK: {}", sphe_dist(1.0_f64.to_radians().half().sin().pow2()).to_degrees());
+    // println!("OK: {}", sphe_dist(1.0_f64.to_radians().half().asin().pow2()).to_degrees());
+    assert_eq!(0.1, sphe_dist(squared_half_segment_from_dist(0.1)));
+    assert_eq!(1.0, sphe_dist(squared_half_segment_from_dist(1.0)));
+    assert_eq!(2.0, sphe_dist(squared_half_segment_from_dist(2.0)));
+  }
+
+}
